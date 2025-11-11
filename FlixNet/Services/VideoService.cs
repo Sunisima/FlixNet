@@ -26,6 +26,5 @@ namespace FlixNet.Services
 
         // Method to get streaming data from MongoDb
         // Method to upload videos til MongoDb
-        // Lav connection klasse til MongoDb.
     }
 }

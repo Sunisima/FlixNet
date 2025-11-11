@@ -1,12 +1,32 @@
 
+using FlixNet.Infrastructure.MongoVideoRepository;
+using FlixNet.Services.ServiceInterfaces;
+using Microsoft.Extensions.FileProviders;
+using MongoDB.Driver;
+
 namespace FlixNet
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            
+
             var builder = WebApplication.CreateBuilder(args);
 
+            //When IVideoRepository is being used, it will use MongoVideoRepository
+            builder.Services.AddScoped<IVideoRepository, MongoVideoRepository>();
+
+
+            // Creates a Singleton for our DB connection to MongoDB to be used everytime a connection is needed.
+            builder.Services.AddSingleton<IMongoDatabase>(sp =>
+            {
+                var mongoClient = new MongoClient("mongodb://localhost:27017");
+                var mongoDatabase = mongoClient.GetDatabase("FlixNetMovieVault");
+                return mongoDatabase;
+            });
+
+         
             // Add services to the container.
             builder.Services.AddAuthorization();
 
@@ -25,24 +45,15 @@ namespace FlixNet
 
             app.UseAuthorization();
 
-            var summaries = new[]
+            // // Makes our HTML/CSS files in the StaticFiles folder available in the browser
+            app.UseFileServer(new FileServerOptions
             {
-                "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-            };
+                FileProvider = new PhysicalFileProvider(
+          Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
+                RequestPath = "/StaticFiles",
+                EnableDefaultFiles = true
+            });
 
-            app.MapGet("/weatherforecast", (HttpContext httpContext) =>
-            {
-                var forecast = Enumerable.Range(1, 5).Select(index =>
-                    new WeatherForecast
-                    {
-                        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-                    .ToArray();
-                return forecast;
-            })
-            .WithName("GetWeatherForecast");
 
             app.Run();
         }
