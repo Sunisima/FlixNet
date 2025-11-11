@@ -1,0 +1,6 @@
+@FlixNet_HostAddress = http://localhost:5121
+
+GET {{FlixNet_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
