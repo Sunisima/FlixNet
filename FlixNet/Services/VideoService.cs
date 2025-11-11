@@ -4,7 +4,7 @@ using FlixNet.Services.ServiceInterfaces;
 namespace FlixNet.Services
 {
     /// <summary>
-    /// Class to get info for the dropdownlist, get video data and upload videoes to MongoDB
+    /// Class that gets video info and handles upload and streaming through Repository
     /// </summary>
     public class VideoService
     {
@@ -12,10 +12,10 @@ namespace FlixNet.Services
 
         public VideoService(IVideoRepository videoRepository) 
         {
-            _videoRepository = videoRepository;
+            _videoRepository = videoRepository; //DI
         }
 
-        // Displays info to the dropdown list
+        // Gets video metadata
         public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
         {
 

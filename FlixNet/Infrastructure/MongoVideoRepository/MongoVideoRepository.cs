@@ -4,7 +4,7 @@ using FlixNet.Services.ServiceInterfaces;
 namespace FlixNet.Infrastructure.MongoVideoRepository
 {
     /// <summary>
-    /// Class to connect to MongoDB
+    /// Repository that retrieves, stores and streams video data from MongoDb.
     /// </summary>
     public class MongoVideoRepository : IVideoRepository
     {
