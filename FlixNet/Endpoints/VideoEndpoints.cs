@@ -6,15 +6,15 @@ namespace FlixNet.Endpoints
     {
         public static IEndpointRouteBuilder MapVideoEndpoints(this IEndpointRouteBuilder endpoints)
         {
-            endpoints.MapGet("/videos", async (IVideoRepository videoRepository) =>
+            endpoints.MapGet("/videos", async (IVideoService videoService) =>
             {
-                var videos = await videoRepository.GetVideoDisplayInfoAsync();
+                var videos = await videoService.GetVideoDisplayInfoAsync();
                 return Results.Ok(videos);
             })
             .WithName("GetVideoInfo")
             .WithSummary("Get's meta data from videos saved to return video title, video id and video length.");
 
-            endpoints.MapGet("/video/{id}", async (string id, IVideoRepository videoRepository) =>
+            endpoints.MapGet("/video/{id}", async (string id, IVideoService videoService) =>
             {
                 try
                 {
