@@ -1,4 +1,5 @@
 
+using FlixNet.Endpoints;
 using FlixNet.Infrastructure.MongoVideoRepository;
 using FlixNet.Services.ServiceInterfaces;
 using Microsoft.Extensions.FileProviders;
@@ -53,6 +54,8 @@ namespace FlixNet
                 RequestPath = "/StaticFiles",
                 EnableDefaultFiles = true
             });
+
+            app.MapVideoEndpoints();
 
 
             app.Run();
