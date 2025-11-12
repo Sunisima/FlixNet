@@ -1,28 +1,30 @@
 ﻿using FlixNet.Services.DTO;
 using FlixNet.Services.ServiceInterfaces;
+using MongoDB.Driver;
 
 namespace FlixNet.Services
 {
     /// <summary>
     /// Class that gets video info and handles upload and streaming through Repository
     /// </summary>
-    public class VideoService
+    public class VideoService : IVideoService
     {
-        private readonly IVideoRepository _videoRepository;
+        private readonly IMongoDatabase _iMongoDatabase;
 
-        public VideoService(IVideoRepository videoRepository) 
+        public VideoService(IMongoDatabase mongoDatabase) 
         {
-            _videoRepository = videoRepository; //DI
+            _iMongoDatabase = mongoDatabase; //Dependency injection to get IMongoDatabase
         }
 
-        // Gets video metadata
+        // Gets video metadata from MOngoDB
         public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
         {
 
-            var videoInfo = await _videoRepository.GetVideoDisplayInfoAsync();
+            var videoInfo = await _iMongoDatabase.GetVideoDisplayInfoAsync();
 
             return videoInfo;
         }
+
 
         // Method to get streaming data from MongoDb
         // Method to upload videos til MongoDb

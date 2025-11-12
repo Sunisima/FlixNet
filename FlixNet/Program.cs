@@ -1,5 +1,6 @@
 
 using FlixNet.Infrastructure.MongoVideoRepository;
+using FlixNet.Services;
 using FlixNet.Services.ServiceInterfaces;
 using Microsoft.Extensions.FileProviders;
 using MongoDB.Driver;
@@ -15,7 +16,7 @@ namespace FlixNet
             var builder = WebApplication.CreateBuilder(args);
 
             //When IVideoRepository is being used, it will use MongoVideoRepository
-            builder.Services.AddScoped<IVideoRepository, MongoVideoRepository>();
+            builder.Services.AddScoped<IVideoService, VideoService>();
 
 
             // Creates a Singleton for our DB connection to MongoDB to be used everytime a connection is needed.
