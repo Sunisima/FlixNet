@@ -16,13 +16,27 @@ namespace FlixNet.Services
             _iMongoDatabase = mongoDatabase; //Dependency injection to get IMongoDatabase
         }
 
-        // Gets video metadata from MOngoDB
+        // Gets video metadata from MongoDB
         public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
         {
+            List<VideoDisplayModelDTO> videoes = new List<VideoDisplayModelDTO>();
 
-            var videoInfo = await _iMongoDatabase.GetVideoDisplayInfoAsync();
+            videoes.Add(new VideoDisplayModelDTO
+            {
+                Id = "1",
+                Title = "Hello",
+                Duration = TimeSpan.FromMinutes(19)
+            });
 
-            return videoInfo;
+            videoes.Add(new VideoDisplayModelDTO
+            {
+                Id = "2",
+                Title = "I'm here!",
+                Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
+            });
+
+            return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
+
         }
 
 

@@ -5,11 +5,11 @@
     <title>Movie Vault</title>
     <link href="SimpleStyle.css" rel="stylesheet" />
     <script>
-        const uri = 'http://localhost:5091';
+        const uri = 'http://localhost:7166';
 
         document.addEventListener('DOMContentLoaded', function () {
 
-            fetch(uri + "/api/movieinfo/list")
+            fetch(uri + "/videos")
 
                 .then(response => response.json())
                 .then(data => {

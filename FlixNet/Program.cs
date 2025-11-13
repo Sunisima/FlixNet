@@ -1,6 +1,5 @@
 
 using FlixNet.Endpoints;
-using FlixNet.Infrastructure.MongoVideoRepository;
 using FlixNet.Services;
 using FlixNet.Services.ServiceInterfaces;
 using Microsoft.Extensions.FileProviders;
