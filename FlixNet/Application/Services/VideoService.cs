@@ -1,4 +1,4 @@
-﻿using FlixNet.Application.DTO;
+﻿using FlixNet.Domain;
 using FlixNet.Application.Services.ServiceInterfaces;
 using MongoDB.Driver;
 
@@ -17,25 +17,25 @@ namespace FlixNet.Application.Services
         }
 
         // Gets video metadata from MongoDB
-        public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
+        public async Task<ICollection<VideoDisplayModel>> GetVideoDisplayInfoAsync()
         {
-            List<VideoDisplayModelDTO> videoes = new List<VideoDisplayModelDTO>();
+            List<VideoDisplayModel> videoes = new List<VideoDisplayModel>();
 
-            videoes.Add(new VideoDisplayModelDTO
+            videoes.Add(new VideoDisplayModel
             {
                 Id = "1",
                 Title = "Hello",
                 Duration = TimeSpan.FromMinutes(19)
             });
 
-            videoes.Add(new VideoDisplayModelDTO
+            videoes.Add(new VideoDisplayModel
             {
                 Id = "2",
                 Title = "I'm here!",
                 Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
             });
 
-            return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
+            return await Task.FromResult(videoes as ICollection<VideoDisplayModel>);
         }
 
 

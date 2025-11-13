@@ -2,13 +2,16 @@ using FlixNet.Application.Services;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
+using System.Threading.Tasks;
 
 namespace FlixNet
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             
 
@@ -18,15 +21,10 @@ namespace FlixNet
             builder.Services.AddScoped<IVideoService, VideoService>();
 
 
-            // Creates a Singleton for our DB connection to MongoDB to be used everytime a connection is needed.
-            builder.Services.AddSingleton<IMongoDatabase>(sp =>
-            {
-                var mongoClient = new MongoClient("mongodb://mongohost:27017");
-                var mongoDatabase = mongoClient.GetDatabase("FlixNetMovieVault");
-                return mongoDatabase;
-            });
+            var test = builder.Services.Configure<DatabaseInfo>(builder.Configuration.GetSection("DatabaseSettings"));
 
-         
+            await HandleAsync();
+
             // Add services to the container.
             builder.Services.AddAuthorization();
 
@@ -58,6 +56,53 @@ namespace FlixNet
 
 
             app.Run();
+        }
+
+        private static async Task HandleAsync(IOptions<DatabaseInfo> databaseInfo)
+        {
+
+            //Connect to the database collection
+            var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
+            var mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName);
+
+
+            //Stream insert movie into database
+            var movieName = "bladerunner.mp4";
+
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string fullPath = Path.Combine(currentDirectory, movieName);
+
+            Console.WriteLine("currentDirectory: " + currentDirectory);
+
+
+            IGridFSBucket bucket = new GridFSBucket(mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
+            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Filename, movieName);
+
+            // Calling the ReadAllBytes() function
+            byte[] readText = File.ReadAllBytes(fullPath);
+
+            // inserting
+            bucket.UploadFromBytes(movieName, readText);
+
+            //Test if the data has been stored
+            using (var cursor = bucket.Find(filter))
+            {
+                var fileInfo = (cursor.ToList()).FirstOrDefault();
+
+                try
+                {
+                    Console.WriteLine($"{nameof(fileInfo.Id)}: {fileInfo.Id}");
+                    Console.WriteLine($"{nameof(fileInfo.Filename)}: {fileInfo.Filename}");
+                    Console.WriteLine($"{nameof(fileInfo.Length)}: {fileInfo.Length}");
+                    Console.WriteLine($"{nameof(fileInfo.ChunkSizeBytes)}: {fileInfo.ChunkSizeBytes}");
+                    Console.WriteLine($"{nameof(fileInfo.UploadDateTime)}: {fileInfo.UploadDateTime}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+
         }
     }
 }

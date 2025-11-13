@@ -1,5 +1,4 @@
-﻿using FlixNet.Application.DTO;
-using Microsoft.AspNetCore.SignalR;
+﻿using FlixNet.Domain;
 
 namespace FlixNet.Application.Services.ServiceInterfaces
 {
@@ -9,6 +8,6 @@ namespace FlixNet.Application.Services.ServiceInterfaces
     public interface IVideoService
     {
 
-        public Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync();
+        public Task<ICollection<VideoDisplayModel>> GetVideoDisplayInfoAsync();
     }
 }
