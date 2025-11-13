@@ -1,7 +1,7 @@
-﻿using FlixNet.Services.DTO;
+﻿using FlixNet.Application.DTO;
 using Microsoft.AspNetCore.SignalR;
 
-namespace FlixNet.Services.ServiceInterfaces
+namespace FlixNet.Application.Services.ServiceInterfaces
 {
     /// <summary>
     /// Interface to retrieve and manage video data

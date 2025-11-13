@@ -1,4 +1,4 @@
-﻿namespace FlixNet.Services.DTO
+﻿namespace FlixNet.Application.DTO
 {
     /// <summary>
     /// A class to display videoinformation in the dropdown list

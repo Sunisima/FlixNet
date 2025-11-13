@@ -1,7 +1,6 @@
-
-using FlixNet.Endpoints;
-using FlixNet.Services;
-using FlixNet.Services.ServiceInterfaces;
+using FlixNet.Application.Services;
+using FlixNet.Application.Services.ServiceInterfaces;
+using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
 using MongoDB.Driver;
 
@@ -22,7 +21,7 @@ namespace FlixNet
             // Creates a Singleton for our DB connection to MongoDB to be used everytime a connection is needed.
             builder.Services.AddSingleton<IMongoDatabase>(sp =>
             {
-                var mongoClient = new MongoClient("mongodb://localhost:27017");
+                var mongoClient = new MongoClient("mongodb://mongohost:27017");
                 var mongoDatabase = mongoClient.GetDatabase("FlixNetMovieVault");
                 return mongoDatabase;
             });

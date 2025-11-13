@@ -1,6 +1,6 @@
-﻿using FlixNet.Services.ServiceInterfaces;
+﻿using FlixNet.Application.Services.ServiceInterfaces;
 
-namespace FlixNet.Endpoints
+namespace FlixNet.Infrastructure.Endpoints
 {
     public static class VideoEndpoints
     {

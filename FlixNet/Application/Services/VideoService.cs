@@ -1,8 +1,8 @@
-﻿using FlixNet.Services.DTO;
-using FlixNet.Services.ServiceInterfaces;
+﻿using FlixNet.Application.DTO;
+using FlixNet.Application.Services.ServiceInterfaces;
 using MongoDB.Driver;
 
-namespace FlixNet.Services
+namespace FlixNet.Application.Services
 {
     /// <summary>
     /// Class that gets video info and handles upload and streaming through Repository
@@ -36,11 +36,11 @@ namespace FlixNet.Services
             });
 
             return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
-
         }
 
 
         // Method to get streaming data from MongoDb
+
         // Method to upload videos til MongoDb
     }
 }
