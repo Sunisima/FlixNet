@@ -2,6 +2,9 @@ using FlixNet.Application.Services;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using MongoDB.Driver.GridFS;
 
 namespace FlixNet
 {

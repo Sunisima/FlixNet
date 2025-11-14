@@ -12,7 +12,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Presentation\StaticFiles\" />
+    <Folder Include="Presentation\" />
+    <Folder Include="StaticFiles\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="StaticFiles\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="StaticFiles\SimpleStyle.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
