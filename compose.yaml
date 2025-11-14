@@ -11,19 +11,22 @@ services:
   mongohost:
     image: mongo:7
     container_name: mongodbmovies
-    ports: 27017:27017
-    volumes: mongo:/data/db
+    ports:
+      - "27017:27017"
+    volumes: 
+      - mongo:/data/db
 
   webapi: 
     build: 
       context: .
       target: final
     ports:
-      - 8080:8080
-    depends on: mongohost
+      - "8080:8080"
+    depends_on: 
+      - mongohost
   
-  volumes:
-      mongo:
+volumes:
+    mongo:
 
 
 # The commented out section below is an example of how to define a PostgreSQL

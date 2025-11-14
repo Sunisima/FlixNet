@@ -50,7 +50,7 @@ namespace FlixNet.Application.Services
         /// </summary>
         /// <param name="databaseInfo"> Creates an object of the DatabaseInfo</param>
         /// <returns></returns>
-        private async Task UploadVideoToDatabaseAsync()
+        public async Task UploadVideoToDatabaseAsync()
         {
             //Findes the path to our VideoFiles
             string currentDirectory = Directory.GetCurrentDirectory();

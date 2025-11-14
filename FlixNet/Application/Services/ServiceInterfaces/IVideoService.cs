@@ -9,5 +9,6 @@ namespace FlixNet.Application.Services.ServiceInterfaces
     {
 
         public Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync();
+        public Task UploadVideoToDatabaseAsync();
     }
 }

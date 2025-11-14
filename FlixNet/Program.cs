@@ -31,6 +31,15 @@ namespace FlixNet
 
             var app = builder.Build();
 
+            //Used one time to upload the videos to database
+            using (var scope = app.Services.CreateScope())
+            {
+                var videoService = scope.ServiceProvider.GetRequiredService<IVideoService>();
+                await videoService.UploadVideoToDatabaseAsync();
+            }
+
+
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
