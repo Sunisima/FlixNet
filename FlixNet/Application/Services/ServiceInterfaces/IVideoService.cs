@@ -1,4 +1,4 @@
-﻿using FlixNet.Domain;
+﻿using FlixNet.Application.DTO;
 
 namespace FlixNet.Application.Services.ServiceInterfaces
 {
@@ -8,6 +8,6 @@ namespace FlixNet.Application.Services.ServiceInterfaces
     public interface IVideoService
     {
 
-        public Task<ICollection<VideoDisplayModel>> GetVideoDisplayInfoAsync();
+        public Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync();
     }
 }

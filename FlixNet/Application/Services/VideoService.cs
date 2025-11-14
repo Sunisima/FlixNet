@@ -1,6 +1,7 @@
-﻿using FlixNet.Domain;
-using FlixNet.Application.Services.ServiceInterfaces;
+﻿using FlixNet.Application.Services.ServiceInterfaces;
 using MongoDB.Driver;
+using Microsoft.Extensions.Options;
+using FlixNet.Application.DTO;
 
 namespace FlixNet.Application.Services
 {
@@ -9,33 +10,35 @@ namespace FlixNet.Application.Services
     /// </summary>
     public class VideoService : IVideoService
     {
-        private readonly IMongoDatabase _iMongoDatabase;
+        private readonly IMongoDatabase _mongoDatabase;
 
-        public VideoService(IMongoDatabase mongoDatabase) 
+        public VideoService(IOptions<DatabaseInfo> databaseInfo) 
         {
-            _iMongoDatabase = mongoDatabase; //Dependency injection to get IMongoDatabase
+            var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
+
+            _mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName); //Dependency injection to get IMongoDatabase
         }
 
         // Gets video metadata from MongoDB
-        public async Task<ICollection<VideoDisplayModel>> GetVideoDisplayInfoAsync()
+        public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
         {
-            List<VideoDisplayModel> videoes = new List<VideoDisplayModel>();
-
-            videoes.Add(new VideoDisplayModel
+            List<VideoDisplayModelDTO> videoes = new List<VideoDisplayModelDTO>();
+            
+            videoes.Add(new VideoDisplayModelDTO
             {
                 Id = "1",
                 Title = "Hello",
                 Duration = TimeSpan.FromMinutes(19)
             });
 
-            videoes.Add(new VideoDisplayModel
+            videoes.Add(new VideoDisplayModelDTO
             {
                 Id = "2",
                 Title = "I'm here!",
                 Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
             });
 
-            return await Task.FromResult(videoes as ICollection<VideoDisplayModel>);
+            return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
         }
 
 

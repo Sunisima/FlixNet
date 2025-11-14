@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Domain\" />
     <Folder Include="StaticFiles\" />
     <Folder Include="Presentation\" />
   </ItemGroup>

@@ -5,7 +5,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using System.Threading.Tasks;
 
 namespace FlixNet
 {
@@ -58,7 +57,7 @@ namespace FlixNet
             app.Run();
         }
 
-        private static async Task HandleAsync(IOptions<DatabaseInfo> databaseInfo)
+        private static async Task UploadVideoToDatabaseAsync(IOptions<DatabaseInfo> databaseInfo)
         {
 
             //Connect to the database collection
