@@ -1,5 +1,6 @@
 ﻿using FlixNet.Application.DTO;
 using FlixNet.Application.Services.ServiceInterfaces;
+using FlixNet.Domain;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
@@ -42,6 +43,8 @@ namespace FlixNet.Application.Services
             return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
         }
 
+
+
         /// <summary>
         /// Imports videos from VideoFiles and uploads them to MongoDB GridFS.
         /// </summary>
@@ -68,6 +71,7 @@ namespace FlixNet.Application.Services
             //Creates a GridFS bucket named "videos"
             IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
 
+
             //Iterates through the list of mp4. files and adds them to MongoDB via GridFS
             foreach (string videos in files)
             {
@@ -75,7 +79,22 @@ namespace FlixNet.Application.Services
                 byte[] readText = await File.ReadAllBytesAsync(videos);
 
                 // Uploads videos to the GridFS bucket using only the filename
-                await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videos), readText);
+                var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videos), readText);
+
+                // Creates VideoModelInfo objects to each video
+                var videoInfo = new VideoInfoModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Title = Path.GetFileNameWithoutExtension(videos),
+                    Duration = TimeSpan.Zero,
+                    GridFsId = gridFsId.ToString()
+                };
+
+                // Inserts the VideoInfoModel objects into a "videoInfo" collection in MongoDB
+                var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>("videoInfo");
+
+                await videoInfoCollection.InsertOneAsync(videoInfo);
+
             }
         }
     }
