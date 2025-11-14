@@ -7,7 +7,7 @@ using MongoDB.Driver.GridFS;
 namespace FlixNet.Application.Services
 {
     /// <summary>
-    /// Class that gets video info and handles upload and streaming through Repository
+    /// A service to upload videos to MongoDB GridFS and get video metadata for the UI
     /// </summary>
     public class VideoService : IVideoService
     {
@@ -45,53 +45,38 @@ namespace FlixNet.Application.Services
         /// <summary>
         /// Imports videos from VideoFiles and uploads them to MongoDB GridFS.
         /// </summary>
-        /// <param name="databaseInfo"></param>
+        /// <param name="databaseInfo"> Creates an object of the DatabaseInfo</param>
         /// <returns></returns>
-        private static async Task UploadVideoToDatabaseAsync(IOptions<DatabaseInfo> databaseInfo)
+        private async Task UploadVideoToDatabaseAsync()
         {
-
-            //Connect to the database collection
-            var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
-            var mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName);
-
             //Findes the path to our VideoFiles
             string currentDirectory = Directory.GetCurrentDirectory();
-            string VideFilesDirectory = Path.Combine(currentDirectory, "VideoFiles");
+            string VideoFilesDirectory = Path.Combine(currentDirectory, "VideoFiles");
 
             Console.WriteLine("currentDirectory: " + currentDirectory);
 
-
-            IGridFSBucket bucket = new GridFSBucket(mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
-            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Filename, movieName);
-
-            // Calling the ReadAllBytes() function
-            byte[] readText = await File.ReadAllBytesAsync(fullPath);
-
-            // inserting
-            await bucket.UploadFromBytesAsync(movieName, readText);
-
-            //Test if the data has been stored
-            using (var cursor = await bucket.FindAsync(filter))
+            // Iterates through all of the files in VideoFiles and adds .mp4 files to the list
+            List<string> files = new List<string>();
+            Directory.GetFiles(VideoFilesDirectory).ToList().ForEach(file =>
             {
-                var fileInfo = (cursor.ToList()).FirstOrDefault();
+                if (Path.GetExtension(file).Equals(".mp4"))
+                {
+                    files.Add(file);
+                }
+            });
 
-                try
-                {
-                    Console.WriteLine($"{nameof(fileInfo.Id)}: {fileInfo.Id}");
-                    Console.WriteLine($"{nameof(fileInfo.Filename)}: {fileInfo.Filename}");
-                    Console.WriteLine($"{nameof(fileInfo.Length)}: {fileInfo.Length}");
-                    Console.WriteLine($"{nameof(fileInfo.ChunkSizeBytes)}: {fileInfo.ChunkSizeBytes}");
-                    Console.WriteLine($"{nameof(fileInfo.UploadDateTime)}: {fileInfo.UploadDateTime}");
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+            //Creates a GridFS bucket named "videos"
+            IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
+
+            //Iterates through the list of mp4. files and adds them to MongoDB via GridFS
+            foreach (string videos in files)
+            {
+                // Reads the file contents as bytes
+                byte[] readText = await File.ReadAllBytesAsync(videos);
+
+                // Uploads videos to the GridFS bucket using only the filename
+                await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videos), readText);
             }
-
         }
-        // Method to get streaming data from MongoDb
-
-        // Method to upload videos til MongoDb
     }
 }
