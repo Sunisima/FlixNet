@@ -13,8 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Domain\" />
-    <Folder Include="StaticFiles\" />
-    <Folder Include="Presentation\" />
+    <Folder Include="Presentation\StaticFiles\" />
   </ItemGroup>
 
 </Project>
