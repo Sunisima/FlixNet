@@ -13,12 +13,16 @@ namespace FlixNet.Application.Services
     public class VideoService : IVideoService
     {
         private readonly IMongoDatabase _mongoDatabase;
+        private readonly DatabaseInfo _databaseInfo;
 
-        public VideoService(IOptions<DatabaseInfo> databaseInfo) 
+        public VideoService(IOptions<DatabaseInfo> databaseInfo) //DI of DatabaseInfo
         {
-            var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
-
-            _mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName); //Dependency injection to get IMongoDatabase
+            //Creates a MongoDB client using the injected connection string
+            var mongoClient = new MongoClient(_databaseInfo.ConnectionString);
+            // Gets the the DatabaseInfor values from IOptions<DatabaseInfo>
+            _databaseInfo = databaseInfo.Value;
+            // Opens the MongoDB database to be used later for storing and retrieving data
+            _mongoDatabase = mongoClient.GetDatabase(_databaseInfo.DatabaseName); 
         }
 
         // Gets video metadata from MongoDB
@@ -48,8 +52,6 @@ namespace FlixNet.Application.Services
         /// <summary>
         /// Imports videos from VideoFiles and uploads them to MongoDB GridFS.
         /// </summary>
-        /// <param name="databaseInfo"> Creates an object of the DatabaseInfo</param>
-        /// <returns></returns>
         public async Task UploadVideoToDatabaseAsync()
         {
             //Findes the path to our VideoFiles
@@ -58,7 +60,7 @@ namespace FlixNet.Application.Services
 
             Console.WriteLine("currentDirectory: " + currentDirectory);
 
-            // Iterates through all of the files in VideoFiles and adds .mp4 files to the list
+            // Iterates through all of the files in VideoFiles and adds the .mp4 file paths to the list
             List<string> files = new List<string>();
             Directory.GetFiles(VideoFilesDirectory).ToList().ForEach(file =>
             {
@@ -72,7 +74,7 @@ namespace FlixNet.Application.Services
             IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
 
 
-            //Iterates through the list of mp4. files and adds them to MongoDB via GridFS
+            //Iterates through the list of mp4. file paths and adds them to MongoDB via GridFS
             foreach (string videos in files)
             {
                 // Reads the file contents as bytes
@@ -81,17 +83,17 @@ namespace FlixNet.Application.Services
                 // Uploads videos to the GridFS bucket using only the filename
                 var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videos), readText);
 
-                // Creates VideoModelInfo objects to each video
+                // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     Title = Path.GetFileNameWithoutExtension(videos),
-                    Duration = TimeSpan.Zero,
+                    Duration = TimeSpan.Zero, //must later be filled out with correct timespan of each video!!!!
                     GridFsId = gridFsId.ToString()
                 };
 
                 // Inserts the VideoInfoModel objects into a "videoInfo" collection in MongoDB
-                var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>("videoInfo");
+                var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
 
                 await videoInfoCollection.InsertOneAsync(videoInfo);
 

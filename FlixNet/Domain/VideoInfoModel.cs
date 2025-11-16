@@ -8,6 +8,6 @@
         public string Id { get; set; } //The ID to be used in th UI
         public string Title { get; set; }
         public TimeSpan Duration { get; set; }
-        public string GridFsId { get; set; } // The ID to be used to stream a video. Is created when bucket.UploadFromBytesAsync
+        public string GridFsId { get; set; } // The ID to get the correct video file from GridFS
     }
 }

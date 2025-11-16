@@ -28,9 +28,9 @@ namespace FlixNet
 
             var app = builder.Build();
 
-            //Used one time pr person to upload the videos to database and afterdwards comment it out again.
-            //Method UploadVideoToDatabaseAsync in VideoService must also be public when doing this to work.
-            //After running one time it must be set back to private.
+            //Used one time pr person to upload the videos to MongoDbB and afterwards comment it out again.
+            //Method UploadVideoToDatabaseAsync in VideoService must also be public when doing this, to work.
+            //After running one time that method must be set back to private.
             //using (var scope = app.Services.CreateScope())
             //{
             //    var videoService = scope.ServiceProvider.GetRequiredService<IVideoService>();
