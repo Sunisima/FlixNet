@@ -1,7 +1,7 @@
 ﻿namespace FlixNet.Application.Services
 {
     /// <summary>
-    /// A class to hold database information to connect to MongoDB
+    /// A class to hold database information from appSettings.json
     /// </summary>
     public class DatabaseInfo
     {

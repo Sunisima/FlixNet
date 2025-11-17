@@ -26,25 +26,25 @@ namespace FlixNet.Application.Services
         }
 
         // Gets video metadata from MongoDB
-        public async Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync()
+        public async Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync()
         {
-            List<VideoDisplayModelDTO> videoes = new List<VideoDisplayModelDTO>();
+            List<VideoDisplayDTO> videoes = new List<VideoDisplayDTO>();
             
-            videoes.Add(new VideoDisplayModelDTO
+            videoes.Add(new VideoDisplayDTO
             {
                 Id = "1",
                 Title = "Hello",
                 Duration = TimeSpan.FromMinutes(19)
             });
 
-            videoes.Add(new VideoDisplayModelDTO
+            videoes.Add(new VideoDisplayDTO
             {
                 Id = "2",
                 Title = "I'm here!",
                 Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
             });
 
-            return await Task.FromResult(videoes as ICollection<VideoDisplayModelDTO>);
+            return await Task.FromResult(videoes as ICollection<VideoDisplayDTO>);
         }
 
 
@@ -92,7 +92,7 @@ namespace FlixNet.Application.Services
                     GridFsId = gridFsId.ToString()
                 };
 
-                // Inserts the VideoInfoModel objects into a "videoInfo" collection in MongoDB
+                // Inserts the Video objects into a "videoInfo" collection in MongoDB
                 var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
 
                 await videoInfoCollection.InsertOneAsync(videoInfo);

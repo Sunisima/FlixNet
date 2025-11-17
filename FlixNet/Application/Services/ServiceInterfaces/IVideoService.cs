@@ -8,7 +8,7 @@ namespace FlixNet.Application.Services.ServiceInterfaces
     public interface IVideoService
     {
 
-        public Task<ICollection<VideoDisplayModelDTO>> GetVideoDisplayInfoAsync();
-        public Task UploadVideoToDatabaseAsync();
+        Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync();
+        Task UploadVideoToDatabaseAsync();
     }
 }
