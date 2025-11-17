@@ -20,7 +20,7 @@ namespace FlixNet.Application.Services
         public VideoService(IOptions<DatabaseInfo> databaseInfo) //DI of DatabaseInfo
         {
             //Creates a MongoDB client using the injected connection string
-            var mongoClient = new MongoClient(_databaseInfo.ConnectionString);
+            var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
             // Gets the the DatabaseInfor values from IOptions<DatabaseInfo>
             _databaseInfo = databaseInfo.Value;
             // Opens the MongoDB database to be used later for storing and retrieving data
@@ -77,22 +77,27 @@ namespace FlixNet.Application.Services
 
 
             //Iterates through the list of mp4. file paths and adds them to MongoDB via GridFS
-            foreach (string videos in files)
+            foreach (string videoPath in files)
             {
-                MediaFile file = new MediaFile(videos);
-                
                 // Reads the file contents as bytes
-                byte[] readText = await File.ReadAllBytesAsync(videos);
+                byte[] readText = await File.ReadAllBytesAsync(videoPath);
+
+                MediaFile file = new MediaFile(videoPath);
+
+                //using (var eng = new MediaToolkit.Engine())
+                //{
+                //    eng.GetMetadata(file);
+                //}
 
                 // Uploads videos to the GridFS bucket using only the filename
-                var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videos), readText);
+                var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videoPath), readText);
 
                 // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = Path.GetFileNameWithoutExtension(videos),
-                    Duration = file.Metadata.Duration, //must later be filled out with correct timespan of each video!!!!
+                    Title = Path.GetFileNameWithoutExtension(videoPath),
+                    Duration = TimeSpan.Zero,//file.Metadata.Duration, //must later be filled out with correct timespan of each video!!!!
                     GridFsId = gridFsId.ToString()
                 };
 
