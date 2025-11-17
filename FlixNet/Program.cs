@@ -16,7 +16,6 @@ namespace FlixNet
             //When IVideoRepository is being used, it will use VideoService
             builder.Services.AddScoped<IVideoService, VideoService>();
 
-
             builder.Services.Configure<DatabaseInfo>(builder.Configuration.GetSection("DatabaseSettings"));
 
 
