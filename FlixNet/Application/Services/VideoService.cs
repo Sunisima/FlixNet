@@ -1,9 +1,11 @@
 ﻿using FlixNet.Application.DTO;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Domain;
+using MediaToolkit.Model;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using System.IO.IsolatedStorage;
 
 namespace FlixNet.Application.Services
 {
@@ -77,6 +79,8 @@ namespace FlixNet.Application.Services
             //Iterates through the list of mp4. file paths and adds them to MongoDB via GridFS
             foreach (string videos in files)
             {
+                MediaFile file = new MediaFile(videos);
+                
                 // Reads the file contents as bytes
                 byte[] readText = await File.ReadAllBytesAsync(videos);
 
@@ -88,7 +92,7 @@ namespace FlixNet.Application.Services
                 {
                     Id = Guid.NewGuid().ToString(),
                     Title = Path.GetFileNameWithoutExtension(videos),
-                    Duration = TimeSpan.Zero, //must later be filled out with correct timespan of each video!!!!
+                    Duration = file.Metadata.Duration, //must later be filled out with correct timespan of each video!!!!
                     GridFsId = gridFsId.ToString()
                 };
 
