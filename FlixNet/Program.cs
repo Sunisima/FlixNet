@@ -2,6 +2,8 @@ using FlixNet.Application.Services;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
+using Xabe.FFmpeg; //Used to extract metadata, like duration, from the videos in the VideoFiles folder
+using Xabe.FFmpeg.Downloader;
 
 namespace FlixNet
 {
@@ -12,6 +14,12 @@ namespace FlixNet
             
 
             var builder = WebApplication.CreateBuilder(args);
+
+            // Downloads FFmpeg executable files the first time. If already present, does nothing.
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
+            // Sets the path where FFmpeg executables are located.
+            FFmpeg.SetExecutablesPath(Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg"));
+
 
             //When IVideoRepository is being used, it will use VideoService
             builder.Services.AddScoped<IVideoService, VideoService>();
@@ -35,7 +43,6 @@ namespace FlixNet
             //    var videoService = scope.ServiceProvider.GetRequiredService<IVideoService>();
             //    await videoService.UploadVideoToDatabaseAsync();
             //}
-
 
 
             // Configure the HTTP request pipeline.

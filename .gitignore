@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/FlixNet/ffmpeg.exe
+/FlixNet/ffprobe.exe
+/FlixNet/version.json
