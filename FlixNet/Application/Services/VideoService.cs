@@ -24,33 +24,27 @@ namespace FlixNet.Application.Services
             _mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName);
         }
 
-        // Gets video metadata from MongoDB
+        /// <summary>
+        /// Gets all video information from mongoDB and maps it to VideoDisplayDTO-objects to be used in the UI (the dropdown menu)
+        /// </summary>
+        /// <returns> A collection of VideoDisplayDTO with metadata for each video </returns>
         public async Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync()
         {
-            List<VideoDisplayDTO> videoes = new List<VideoDisplayDTO>();
+            // Gets access to the videoInfoCollectionName in MongoDB
+            var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
 
-            videoes.Add(new VideoDisplayDTO
+            // Executes a query to get all documents and then deserializes them into VideoInfoModel-objects 
+            var getAllInfoFromVideos = await videoInfoCollection.Find(_ => true).ToListAsync();
+
+            // Maps the VideoInfoModel-objects to VideoDisplayDTO-objects
+            var result = getAllInfoFromVideos.Select(v => new VideoDisplayDTO
             {
-                Id = "1",
-                Title = "Funniest Cat Videoes Ever",
-                Duration = TimeSpan.FromMinutes(20) + TimeSpan.FromSeconds(10)
-            });
+                Id = v.Id,
+                Title = v.Title,
+                Duration = v.Duration
+            }).ToList();
 
-            videoes.Add(new VideoDisplayDTO
-            {
-                Id = "2",
-                Title = "How to learn programming",
-                Duration = TimeSpan.FromMinutes(4) + TimeSpan.FromSeconds(45)
-            });
-
-            videoes.Add(new VideoDisplayDTO
-            {
-                Id = "3",
-                Title = "Most popular funny cats",
-                Duration = TimeSpan.FromMinutes(16) + TimeSpan.FromSeconds(44)
-            });
-
-            return await Task.FromResult(videoes as ICollection<VideoDisplayDTO>);
+            return result;
         }
 
 
