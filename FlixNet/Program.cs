@@ -11,8 +11,6 @@ namespace FlixNet
     {
         public static async Task Main(string[] args)
         {
-            
-
             var builder = WebApplication.CreateBuilder(args);
 
             // Downloads FFmpeg executable files the first time. If already present, does nothing.
