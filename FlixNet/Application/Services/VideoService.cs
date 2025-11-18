@@ -73,9 +73,26 @@ namespace FlixNet.Application.Services
             //Creates a GridFS bucket named "videos"
             IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
 
+            // Hardcoded durations taken from the video files
+            var videoDurations = new Dictionary<string, string>
+            {
+                { "Funniest-Cat-Videoes-Ever", "00:20:10" },
+                { "How-To-Learn-Programming", "00:04:45" },
+                { "Most_Popular_Funny_Cats", "00:16:44" }
+            };
+
+
             //Iterates through the list of mp4. file paths and adds them to MongoDB via GridFS
             foreach (string videoPath in files)
             {
+                // Gets the FileName of each video
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(videoPath);
+
+                // Gets the duration from the dictionary or falls back to 00:00:00
+                string durationFromDictionary = videoDurations.ContainsKey(fileNameWithoutExt)? videoDurations[fileNameWithoutExt] : "00:00:00";
+
+                TimeSpan duration = TimeSpan.Parse(durationFromDictionary);
+
                 // Reads the file contents as bytes
                 byte[] readText = await File.ReadAllBytesAsync(videoPath);
 
@@ -86,8 +103,8 @@ namespace FlixNet.Application.Services
                 var videoInfo = new VideoInfoModel
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = Path.GetFileNameWithoutExtension(videoPath),
-                    Duration = TimeSpan.Zero, // Saves the duration of the video in the VideoInfoModel object
+                    Title = fileNameWithoutExt,
+                    Duration = duration,
                     GridFsId = gridFsId.ToString()
                 };
 
