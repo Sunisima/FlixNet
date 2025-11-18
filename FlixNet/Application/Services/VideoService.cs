@@ -4,7 +4,6 @@ using FlixNet.Domain;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using Xabe.FFmpeg;
 
 namespace FlixNet.Application.Services
 {
@@ -29,19 +28,26 @@ namespace FlixNet.Application.Services
         public async Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync()
         {
             List<VideoDisplayDTO> videoes = new List<VideoDisplayDTO>();
-            
+
             videoes.Add(new VideoDisplayDTO
             {
                 Id = "1",
-                Title = "Hello",
-                Duration = TimeSpan.FromMinutes(19)
+                Title = "Funniest Cat Videoes Ever",
+                Duration = TimeSpan.FromMinutes(20) + TimeSpan.FromSeconds(10)
             });
 
             videoes.Add(new VideoDisplayDTO
             {
                 Id = "2",
-                Title = "I'm here!",
-                Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
+                Title = "How to learn programming",
+                Duration = TimeSpan.FromMinutes(4) + TimeSpan.FromSeconds(45)
+            });
+
+            videoes.Add(new VideoDisplayDTO
+            {
+                Id = "3",
+                Title = "Most popular funny cats",
+                Duration = TimeSpan.FromMinutes(16) + TimeSpan.FromSeconds(44)
             });
 
             return await Task.FromResult(videoes as ICollection<VideoDisplayDTO>);
@@ -82,17 +88,12 @@ namespace FlixNet.Application.Services
                 // Uploads videos to the GridFS bucket using only the filename
                 var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videoPath), readText);
 
-                // Reads duration from the video file in the VideoFiles folder
-                var info = await FFmpeg.GetMediaInfo(videoPath);
-                // Saves the duration from the video file
-                var duration = info.VideoStreams.First().Duration;
-
                 // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
                 {
                     Id = Guid.NewGuid().ToString(),
                     Title = Path.GetFileNameWithoutExtension(videoPath),
-                    Duration = duration, // Saves the duration of the video in the VideoInfoModel object
+                    Duration = TimeSpan.Zero, // Saves the duration of the video in the VideoInfoModel object
                     GridFsId = gridFsId.ToString()
                 };
 
