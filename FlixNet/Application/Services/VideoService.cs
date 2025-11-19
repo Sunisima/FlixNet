@@ -14,15 +14,16 @@ namespace FlixNet.Application.Services
     public class VideoService : IVideoService
     {
         private readonly IMongoDatabase _mongoDatabase;
-        private readonly DatabaseInfo _databaseInfo;
+        private readonly IMongoCollection<VideoInfoModel> _videoInfoCollection;
 
-        public VideoService(IOptions<DatabaseInfo> databaseInfo) {  //DI of DatabaseInfo
-            // Gets the the DatabaseInfor values from IOptions<DatabaseInfo>
-            _databaseInfo = databaseInfo.Value;
+        public VideoService(IOptions<DatabaseInfo> databaseInfo) 
+        {
             //Creates a MongoDB client using the injected connection string
             var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
             // Opens the MongoDB database to be used later for storing and retrieving data
             _mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName);
+            //Gets the videoInfo collection from the database to be used later
+            _videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(databaseInfo.Value.VideoInfoCollectionName);
         }
 
         // Gets video metadata from MongoDB
@@ -30,18 +31,14 @@ namespace FlixNet.Application.Services
         {
             List<VideoDisplayDTO> videoes = new List<VideoDisplayDTO>();
             
-            videoes.Add(new VideoDisplayDTO
+            _videoInfoCollection.Find(_ => true).ToList().ForEach(video =>
             {
-                Id = "1",
-                Title = "Hello",
-                Duration = TimeSpan.FromMinutes(19)
-            });
-
-            videoes.Add(new VideoDisplayDTO
-            {
-                Id = "2",
-                Title = "I'm here!",
-                Duration = TimeSpan.FromMinutes(31) + TimeSpan.FromSeconds(58)
+                videoes.Add(new VideoDisplayDTO
+                {
+                    Id = video.Id,
+                    Title = video.Title,
+                    Duration = video.Duration
+                });
             });
 
             return await Task.FromResult(videoes as ICollection<VideoDisplayDTO>);
@@ -97,9 +94,7 @@ namespace FlixNet.Application.Services
                 };
 
                 // Inserts the Video objects into a "videoInfo" collection in MongoDB
-                var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
-
-                await videoInfoCollection.InsertOneAsync(videoInfo);
+                await _videoInfoCollection.InsertOneAsync(videoInfo);
 
             }
         }
