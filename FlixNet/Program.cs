@@ -2,9 +2,6 @@ using FlixNet.Application.Services;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
-using Xabe.FFmpeg; //Used to extract metadata, like duration, from the videos in the VideoFiles folder
-using Xabe.FFmpeg.Downloader;
-
 namespace FlixNet
 {
     public class Program
@@ -12,12 +9,6 @@ namespace FlixNet
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Downloads FFmpeg executable files the first time. If already present, does nothing.
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
-            // Sets the path where FFmpeg executables are located.
-            FFmpeg.SetExecutablesPath(Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg"));
-
 
             //When IVideoRepository is being used, it will use VideoService
             builder.Services.AddScoped<IVideoService, VideoService>();
@@ -36,11 +27,11 @@ namespace FlixNet
             //Used one time pr person to upload the videos to MongoDbB and afterwards comment it out again.
             //Method UploadVideoToDatabaseAsync in VideoService must also be public when doing this, to work.
             //After running one time that method must be set back to private.
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var videoService = scope.ServiceProvider.GetRequiredService<IVideoService>();
-            //    await videoService.UploadVideoToDatabaseAsync();
-            //}
+            using (var scope = app.Services.CreateScope())
+            {
+                var videoservice = scope.ServiceProvider.GetRequiredService<IVideoService>();
+                await videoservice.UploadVideoToDatabaseAsync();
+            }
 
 
             // Configure the HTTP request pipeline.
@@ -57,7 +48,7 @@ namespace FlixNet
             app.UseFileServer(new FileServerOptions
             {
                 FileProvider = new PhysicalFileProvider(
-          Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
+                    Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
                 RequestPath = "/StaticFiles",
                 EnableDefaultFiles = true
             });
