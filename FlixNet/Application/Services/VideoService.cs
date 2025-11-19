@@ -2,6 +2,7 @@
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Domain;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
 
@@ -14,14 +15,16 @@ namespace FlixNet.Application.Services
     {
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IMongoCollection<VideoInfoModel> _videoInfoCollection;
+        const string VIDEO_BUCKET_NAME = "videos";
 
-        public VideoService(IOptions<DatabaseInfo> databaseInfo) 
+        public VideoService(IOptions<DatabaseInfo> databaseInfo)
         {
             //Creates a MongoDB client using the injected connection string
             var mongoClient = new MongoClient(databaseInfo.Value.ConnectionString);
             // Opens the MongoDB database to be used later for storing and retrieving data
             _mongoDatabase = mongoClient.GetDatabase(databaseInfo.Value.DatabaseName);
-            //Gets the videoInfo collection from the database to be used later
+
+            // Gets access to the videoInfoCollectionName in MongoDB
             _videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(databaseInfo.Value.VideoInfoCollectionName);
         }
 
@@ -45,6 +48,30 @@ namespace FlixNet.Application.Services
             return result;
         }
 
+        /// <summary>
+        /// Gets a video stream from MongoDB GridFS by the provided video id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        public async Task<Stream> GetVideoStreamByIdAsync(string id)
+        {
+            //Creates a GridFS bucket named "videos"
+            IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = VIDEO_BUCKET_NAME });
+            
+            //Finds the video info by the provided id
+            VideoInfoModel videoInfo = await _videoInfoCollection.Find(v => v.Id == id).FirstOrDefaultAsync();
+            if (videoInfo == null)
+            {
+                throw new FileNotFoundException($"Video with id {id} not found.");
+            }
+            //Parses the GridFS Id from string to ObjectId
+            var gridFsObjectId = ObjectId.Parse(videoInfo.GridFsId);
+
+            //Downloads the video stream from GridFS using the ObjectId
+            var videoStream = await gridFsBucket.OpenDownloadStreamAsync(gridFsObjectId);
+            return videoStream;
+        }
 
 
         /// <summary>
@@ -69,7 +96,7 @@ namespace FlixNet.Application.Services
             });
 
             //Creates a GridFS bucket named "videos"
-            IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
+            IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = VIDEO_BUCKET_NAME });
 
             // Hardcoded durations taken from the video files
             var videoDurations = new Dictionary<string, string>
@@ -87,7 +114,7 @@ namespace FlixNet.Application.Services
                 string fileNameWithoutExt = Path.GetFileNameWithoutExtension(videoPath);
 
                 // Gets the duration from the dictionary or falls back to 00:00:00
-                string durationFromDictionary = videoDurations.ContainsKey(fileNameWithoutExt)? videoDurations[fileNameWithoutExt] : "00:00:00";
+                string durationFromDictionary = videoDurations.ContainsKey(fileNameWithoutExt) ? videoDurations[fileNameWithoutExt] : "00:00:00";
 
                 TimeSpan duration = TimeSpan.Parse(durationFromDictionary);
 

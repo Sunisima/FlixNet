@@ -29,8 +29,8 @@ namespace FlixNet
             //After running one time that method must be set back to private.
             //using (var scope = app.Services.CreateScope())
             //{
-            //    var videoService = scope.ServiceProvider.GetRequiredService<IVideoService>();
-            //    await videoService.UploadVideoToDatabaseAsync();
+            //    var videoservice = scope.ServiceProvider.GetRequiredService<IVideoService>();
+            //    await videoservice.UploadVideoToDatabaseAsync();
             //}
 
 

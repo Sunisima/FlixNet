@@ -18,12 +18,12 @@ namespace FlixNet.Infrastructure.Endpoints
             {
                 try
                 {
-                    // Return the video stream
-                    return Results.Ok();
+                    Stream videoStream =  await videoService.GetVideoStreamByIdAsync(id);
+                    return Results.File(videoStream, "video/mp4");
                 }
-                catch (FileNotFoundException)
+                catch (FileNotFoundException e)
                 {
-                    return Results.NotFound();
+                    return Results.NotFound(e.Message);
                 }
                 catch (Exception e)
                 {
