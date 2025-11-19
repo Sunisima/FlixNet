@@ -31,11 +31,8 @@ namespace FlixNet.Application.Services
         /// <returns> A collection of VideoDisplayDTO with metadata for each video </returns>
         public async Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync()
         {
-            // Gets access to the videoInfoCollectionName in MongoDB
-            var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
-
             // Executes a query to get all documents and then deserializes them into VideoInfoModel-objects 
-            var getAllInfoFromVideos = await videoInfoCollection.Find(_ => true).ToListAsync();
+            var getAllInfoFromVideos = await _videoInfoCollection.Find(_ => true).ToListAsync();
 
             // Maps the VideoInfoModel-objects to VideoDisplayDTO-objects
             var result = getAllInfoFromVideos.Select(v => new VideoDisplayDTO
@@ -99,11 +96,6 @@ namespace FlixNet.Application.Services
 
                 // Uploads videos to the GridFS bucket using only the filename
                 var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videoPath), readText);
-
-                // Reads duration from the video file in the VideoFiles folder
-                var info = await FFmpeg.GetMediaInfo(videoPath);
-                // Saves the duration from the video file
-                var duration = info.VideoStreams.First().Duration;
 
                 // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
