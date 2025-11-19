@@ -1,7 +1,5 @@
 # FlixNet Project
 
-[TOC]
-
 ## Description
 
 This is a school project to demonstrate the use of Restful API's in a .NET Core project. 
