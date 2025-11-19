@@ -15,11 +15,6 @@ namespace FlixNet
 
             var builder = WebApplication.CreateBuilder(args);
 
-            // Downloads FFmpeg executable files the first time. If already present, does nothing.
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
-            // Sets the path where FFmpeg executables are located.
-            FFmpeg.SetExecutablesPath(Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg"));
-
 
             //When IVideoRepository is being used, it will use VideoService
             builder.Services.AddScoped<IVideoService, VideoService>();
@@ -59,7 +54,7 @@ namespace FlixNet
             app.UseFileServer(new FileServerOptions
             {
                 FileProvider = new PhysicalFileProvider(
-          Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
+                    Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles")),
                 RequestPath = "/StaticFiles",
                 EnableDefaultFiles = true
             });

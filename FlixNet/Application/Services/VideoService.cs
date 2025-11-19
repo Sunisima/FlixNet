@@ -4,7 +4,6 @@ using FlixNet.Domain;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
-using Xabe.FFmpeg;
 
 namespace FlixNet.Application.Services
 {
@@ -79,10 +78,6 @@ namespace FlixNet.Application.Services
                 // Uploads videos to the GridFS bucket using only the filename
                 var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videoPath), readText);
 
-                // Reads duration from the video file in the VideoFiles folder
-                var info = await FFmpeg.GetMediaInfo(videoPath);
-                // Saves the duration from the video file
-                var duration = info.VideoStreams.First().Duration;
 
                 // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
