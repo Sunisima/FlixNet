@@ -24,6 +24,9 @@ services:
       - "8080:8080"
     depends_on: 
       - mongohost
+    volumes:
+      - ./FlixNet/VideoFiles:/app/VideoFiles
+      - ./FlixNet/StaticFiles:/app/StaticFiles
   
 volumes:
     mongo:

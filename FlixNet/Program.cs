@@ -2,19 +2,13 @@ using FlixNet.Application.Services;
 using FlixNet.Application.Services.ServiceInterfaces;
 using FlixNet.Infrastructure.Endpoints;
 using Microsoft.Extensions.FileProviders;
-using Xabe.FFmpeg; //Used to extract metadata, like duration, from the videos in the VideoFiles folder
-using Xabe.FFmpeg.Downloader;
-
 namespace FlixNet
 {
     public class Program
     {
         public static async Task Main(string[] args)
         {
-            
-
             var builder = WebApplication.CreateBuilder(args);
-
 
             //When IVideoRepository is being used, it will use VideoService
             builder.Services.AddScoped<IVideoService, VideoService>();

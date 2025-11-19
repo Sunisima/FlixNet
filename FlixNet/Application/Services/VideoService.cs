@@ -25,22 +25,27 @@ namespace FlixNet.Application.Services
             _videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(databaseInfo.Value.VideoInfoCollectionName);
         }
 
-        // Gets video metadata from MongoDB
+        /// <summary>
+        /// Gets all video information from mongoDB and maps it to VideoDisplayDTO-objects to be used in the UI (the dropdown menu)
+        /// </summary>
+        /// <returns> A collection of VideoDisplayDTO with metadata for each video </returns>
         public async Task<ICollection<VideoDisplayDTO>> GetVideoDisplayInfoAsync()
         {
-            List<VideoDisplayDTO> videoes = new List<VideoDisplayDTO>();
-            
-            _videoInfoCollection.Find(_ => true).ToList().ForEach(video =>
-            {
-                videoes.Add(new VideoDisplayDTO
-                {
-                    Id = video.Id,
-                    Title = video.Title,
-                    Duration = video.Duration
-                });
-            });
+            // Gets access to the videoInfoCollectionName in MongoDB
+            var videoInfoCollection = _mongoDatabase.GetCollection<VideoInfoModel>(_databaseInfo.VideoInfoCollectionName);
 
-            return await Task.FromResult(videoes as ICollection<VideoDisplayDTO>);
+            // Executes a query to get all documents and then deserializes them into VideoInfoModel-objects 
+            var getAllInfoFromVideos = await videoInfoCollection.Find(_ => true).ToListAsync();
+
+            // Maps the VideoInfoModel-objects to VideoDisplayDTO-objects
+            var result = getAllInfoFromVideos.Select(v => new VideoDisplayDTO
+            {
+                Id = v.Id,
+                Title = v.Title,
+                Duration = v.Duration
+            }).ToList();
+
+            return result;
         }
 
 
@@ -69,22 +74,43 @@ namespace FlixNet.Application.Services
             //Creates a GridFS bucket named "videos"
             IGridFSBucket gridFsBucket = new GridFSBucket(_mongoDatabase, new GridFSBucketOptions() { BucketName = "videos" });
 
+            // Hardcoded durations taken from the video files
+            var videoDurations = new Dictionary<string, string>
+            {
+                { "Funniest-Cat-Videoes-Ever", "00:20:10" },
+                { "How-To-Learn-Programming", "00:04:45" },
+                { "Most_Popular_Funny_Cats", "00:16:44" }
+            };
+
+
             //Iterates through the list of mp4. file paths and adds them to MongoDB via GridFS
             foreach (string videoPath in files)
             {
+                // Gets the FileName of each video
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(videoPath);
+
+                // Gets the duration from the dictionary or falls back to 00:00:00
+                string durationFromDictionary = videoDurations.ContainsKey(fileNameWithoutExt)? videoDurations[fileNameWithoutExt] : "00:00:00";
+
+                TimeSpan duration = TimeSpan.Parse(durationFromDictionary);
+
                 // Reads the file contents as bytes
                 byte[] readText = await File.ReadAllBytesAsync(videoPath);
 
                 // Uploads videos to the GridFS bucket using only the filename
                 var gridFsId = await gridFsBucket.UploadFromBytesAsync(Path.GetFileName(videoPath), readText);
 
+                // Reads duration from the video file in the VideoFiles folder
+                var info = await FFmpeg.GetMediaInfo(videoPath);
+                // Saves the duration from the video file
+                var duration = info.VideoStreams.First().Duration;
 
                 // Creates VideoModelInfo objects for each video
                 var videoInfo = new VideoInfoModel
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Title = Path.GetFileNameWithoutExtension(videoPath),
-                    Duration = duration, // Saves the duration of the video in the VideoInfoModel object
+                    Title = fileNameWithoutExt,
+                    Duration = duration,
                     GridFsId = gridFsId.ToString()
                 };
 

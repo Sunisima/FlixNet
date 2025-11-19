@@ -5,7 +5,7 @@
     <title>Movie Vault</title>
     <link href="SimpleStyle.css" rel="stylesheet" />
     <script>
-        const uri = 'http://localhost:7166';
+        const uri = 'http://localhost:8080';
 
         document.addEventListener('DOMContentLoaded', function () {
 
@@ -14,27 +14,22 @@
                 .then(response => response.json())
                 .then(data => {
 
-                    //alert("movie data: " + JSON.stringify(data));
-                    //alert(data.data[0].title);
-
                     var select = document.getElementById('movielist');
 
-                    for (var i = 0; i < data.data.length; i++) {
+                    for (var i = 0; i < data.length; i++) {
                         var opt = document.createElement('option');
-                        opt.value = i;
-                        opt.innerHTML = data.data[i].title;
+                        opt.value = data[i].id;
+                        opt.innerHTML = `${data[i].title} (${data[i].duration})`;
                         select.appendChild(opt);
                     }
-
                 })
                 .catch(error => console.error('Unable to get movies.', error));
 
+
             document.getElementById("btnWatchMovie").onclick = (event) => {
-
-
                 var selectList = document.getElementById("movielist");
-                var movieTitle = selectList.options[selectList.selectedIndex].text;
-                document.getElementById("videoPlayer").src = "http://localhost:5091/api/movie/get/" + movieTitle;
+                var movieId = selectList.value;
+                document.getElementById("videoPlayer").src = uri + "/video/" + movieId;
             }
 
         });
@@ -50,20 +45,16 @@
             <H1>The video vault</H1>
         </div>
         <div>
-            <select id="movielist">
-            </select>
+            <select id="movielist"></select>
         </div>
         <div>
             <button class="button button1" id="btnWatchMovie">Watch movie</button>
         </div>
         <div class="itemSpan2">
-
-            <video id="videoPlayer" width="650" autoplay>
+            <video id="videoPlayer" width="650" autoplay controls>
                 <source type="video/mp4" />
             </video>
         </div>
     </div>
-
-        <!-- src="http://localhost:5091/api/movie/get"  muted="muted"-->
 </body>
 </html>
